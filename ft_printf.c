@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/17 16:01:51 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/17 16:21:09 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,7 +260,6 @@ void	stock_va_arg(t_flags *f, va_list ap)
 
 	if (f->type == 'c')
 		f->z.c = va_arg(ap, int);
-	//f->z.c = (f->type == 'c')? va_arg(ap, int) : 0;
 	if (f->type == 'x' || f->type == 'X' || f->type == 'u')
 		f->z.u = va_arg(ap, unsigned int);
 	if (f->type == 'd' || f->type == 'i')
