@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/17 13:23:27 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/17 14:46:04 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,6 @@ typedef struct	s_flags
 	char	i;
 	int		width;
 	char	precision;
-	char	star1;
-	char	starneg;
 	int		intp;
 	char	type;
 	t_type		z;
@@ -41,8 +39,6 @@ void	init_flags(t_flags *f)
 {
 	f->i = 0;
 	f->width = 0;
-	f->star1 = 0;
-	f->starneg = 0;
 	f->precision = 0;
 	f->intp = 0;
 	f->type = 0;
@@ -198,6 +194,20 @@ int		ft_p_flags(struct s_flags *f, char y)
 	return(0);
 }
 
+int		ft_largeur1_0(t_flags *f, int size)
+{
+	int		ret;
+
+	ret = 0;
+	while(f->intp > size && f->precision == '.')
+	{
+		ret += write(1, "0", 1);
+		f->intp--;
+	}
+	return (ret);
+}
+
+
 int		ft_largeur(struct s_flags *f, int size, char y)
 {
 	int		ret;
@@ -215,13 +225,7 @@ int		ft_largeur(struct s_flags *f, int size, char y)
 		}
 	}
 	if(y == 1 && f->type != 's' && f->type != '%')
-	{
-		while(f->intp > size && f->precision == '.')
-		{
-			ret += write(1, "0", 1);
-			f->intp--;
-		}
-	}
+		ret += ft_largeur1_0(f, size);
 	if(y == 2)
 	{
 		while(f->i == '-' && f->width > size)
@@ -331,7 +335,6 @@ int		ft_printf_flags(va_list ap, const char *s, int *n)
 	while(ft_find(s[*n], "0123456789"))
 	{
 		f.width = f.width * 10 + (s[*n] - '0');
-		f.star1 = 1;
 		(*n)++;
 	}
 	if(ft_find(s[*n], "*"))
@@ -357,10 +360,9 @@ int		ft_printf_flags(va_list ap, const char *s, int *n)
 				f.precision = 0;
 			}
 			(*n)++;
-			f.starneg = 1;
 		}
 	}
-	while(ft_find(s[*n], "0123456789") && f.starneg == 0)
+	while(ft_find(s[*n], "0123456789"))
 	{
 		f.intp = f.intp * 10 + (s[*n] - '0');
 		(*n)++;
@@ -398,29 +400,3 @@ int		ft_printf(const char *s, ...)
 	va_end(ap);
 	return(ret);
 }
-
-
-/*
-#include <stdio.h>
-
-
-int			main(void)
-{
-	printf("REAL printf -->|%--4.%|<--\n" );
-	printf("\n");
-	ft_printf("My printf   -->|%--4.%|<--\n");
-}
-*/
-/*
-int			main(void)
-{
-	int		n;
-
-	n = ft_printf("%0*.*d\n", 4, -2, -12);
-	printf("ret de ft_printf %d\n", n);
-	printf("%0*.*d\n", 4, -2, -12);
-	//ft_printf("On va aller en boite |%056%| \n");
-	//printf("Lauranne va en boite |%056%| \n");
-	//ft_printf("Moi aussi je vais aller a la plage |%56%| \n");
-	return(1);
-}*/
