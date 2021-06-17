@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/17 15:22:30 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/17 16:01:51 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,13 +127,12 @@ int	ft_hexa(unsigned int n, char y, char x)
 	return (ret);
 }
 
-
 int	ft_hexa_pointeur(unsigned long long int n, char y)
 {
 	int		ret;
 	char	c;
 	char	*s;
-	
+
 	s = "0123456789abcdef";
 	ret = 0;
 	if (n / 16)
@@ -157,7 +156,6 @@ int	print_p(void	*p, char	y)
 	return (ret);
 }
 
-
 int	ft_putstr(char *s, int n, char y)
 {
 	int		ret;
@@ -177,9 +175,11 @@ int	ft_p_flags(struct s_flags *f, char y)
 {
 	if (f->type == 's' && !(f->precision == '.' && f->intp == 0))
 		return (ft_putstr(f->z.s, f->intp, y));
-	if (ft_find(f->type, "xX") && !(f->precision == '.' && f->intp == 0 && f->z.u == 0))
+	if (ft_find(f->type, "xX") && !(f->precision == '.' && f->intp == 0
+			&& f->z.u == 0))
 		return (ft_hexa(f->z.u, y, f->type));
-	if (ft_find(f->type, "di") && !(f->precision == '.' && f->intp == 0 && f->z.n == 0))
+	if (ft_find(f->type, "di") && !(f->precision == '.' && f->intp == 0
+			&& f->z.n == 0))
 		return (ft_putnbr(f->z.n, y));
 	if (f->type == 'u' && !(f->precision == '.' && f->intp == 0 && f->z.u == 0))
 		return (ft_putnbr_unsigned(f->z.u, y));
@@ -250,88 +250,50 @@ int	ft_largeur_pointeur(t_flags	*f)
 	return (ret);
 }
 
-int	ter(int condition, int ret1, int ret2)
-{
-	if (condition)
-		return (ret1);
-	return (ret2);
-}
-
-char	*ter_str(int condition, char *ret1, char *ret2)
-{
-	if (condition)
-		return (ret1);
-	return (ret2);
-}
-
-void	*ter_p(int condition, void *ret1, void *ret2)
-{
-	if (condition)
-		return (ret1);
-	return (ret2);
-}
-/*
 void	stock_va_arg(t_flags *f, va_list ap)
 {
-	f->z.c = ter((f->type == 'c'), va_arg(ap, int),  0);
-	f->z.u = ter((f->type == 'x' || f->type == 'X' || f->type == 'u'), va_arg(ap, unsigned int), 0);
-	f->z.n = ter((f->type == 'd' || f->type == 'i'), va_arg(ap, int), 0);
-	f->z.s = ter_str((f->type == 's'), va_arg(ap, char*), "(null)");
-	f->z.p = ter_p((f->type == 'p'), va_arg(ap, void*), NULL);
+	f->z.c = 0;
+	f->z.u = 0;
+	f->z.n = 0;
+	f->z.s = "(null)";
+	f->z.p = NULL;
+
+	if (f->type == 'c')
+		f->z.c = va_arg(ap, int);
+	//f->z.c = (f->type == 'c')? va_arg(ap, int) : 0;
+	if (f->type == 'x' || f->type == 'X' || f->type == 'u')
+		f->z.u = va_arg(ap, unsigned int);
+	if (f->type == 'd' || f->type == 'i')
+		f->z.n = va_arg(ap, int);
+	if (f->type == 's')
+		f->z.s = va_arg(ap, char *);
+	if (f->type == 'p')
+		f->z.p = va_arg(ap, void*);
 	if (!f->z.s)
 		f->z.s = "(null)";
 	return ;
 }
-
-*/
-
-void	stock_va_arg(t_flags *f, va_list ap)
-{
-	f->z.c = (f->type == 'c')? va_arg(ap, int) : 0;
-	f->z.u = (f->type == 'x' || f->type == 'X' || f->type == 'u')? va_arg(ap, unsigned int) : 0;
-	f->z.n = (f->type == 'd' || f->type == 'i')? va_arg(ap, int) : 0;
-	f->z.s = (f->type == 's')? va_arg(ap, char*) : "(null)";
-	f->z.p = (f->type == 'p')? va_arg(ap, void*) : NULL;
-	if(!f->z.s)
-		f->z.s = "(null)";
-}
-
-	/*
-void	stock_va_arg(t_flags *f, va_list ap)
-{
-	f->z.c = ter((f->type == 'c'), va_arg(ap, int),  0);
-	f->z.u = ter(ft_find(f->type, "xXu"), va_arg(ap, unsigned int), 0);
-	f->z.n = ter(ft_find(f->type, "di"), va_arg(ap, int), 0);
-	f->z.s = ter_str((f->type == 's'), va_arg(ap, char*), "(null)");
-	f->z.p = ter_p((f->type == 'p'), va_arg(ap, void*), NULL);
-	if (!f->z.s)
-		f->z.s = "(null)";
-	return ;
-}
-*/
 
 int	print_type(va_list ap, struct s_flags *f)
 {
-	stock_va_arg(f, ap);
 	int		size;
 	int		largeur;
 	int		neg;
 	int		ret;
 	int		m;
 
+	stock_va_arg(f, ap);
 	if (f->width < 0)
 	{
 		f->width *= -1;
 		f->i = '-';
 	}
-
 	m = (f->type == 'p')? 2 : 0;
 	neg = ((f->type == 'd' || f->type == 'i') && f->z.n < 0)? 1 : 0;
 	size = ft_p_flags(f, 0);
 	largeur = (f->type != 's' && f->type != '%' && (f->precision == '.' && (f->intp + neg > size + m)))? f->intp + neg : size + m;
-
 	ret = 0;
-	if (ft_find(f->type, "di") && f->z.n < 0 && f->i== '0' && !(f->precision == '.'))
+	if (ft_find (f->type, "di") && f->z.n < 0 && f->i== '0' && !(f->precision == '.'))
 	{
 		ret += write(1, "-", 1);
 		size--;
@@ -352,10 +314,9 @@ int	print_type(va_list ap, struct s_flags *f)
 	return (ret);
 }
 
-
 int	ft_printf_flags(va_list ap, const char *s, int *n)
 {
-	struct	s_flags		f;
+	t_flags		f;
 
 	init_flags(&f);
 	(*n)++;
@@ -418,7 +379,7 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 	return (0);
 }
 
-int		ft_printf(const char *s, ...)
+int	ft_printf(const char *s, ...)
 {
 	va_list		ap;
 	int			n;
