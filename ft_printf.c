@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/17 15:06:21 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/17 15:22:30 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,18 +257,58 @@ int	ter(int condition, int ret1, int ret2)
 	return (ret2);
 }
 
+char	*ter_str(int condition, char *ret1, char *ret2)
+{
+	if (condition)
+		return (ret1);
+	return (ret2);
+}
+
+void	*ter_p(int condition, void *ret1, void *ret2)
+{
+	if (condition)
+		return (ret1);
+	return (ret2);
+}
+/*
 void	stock_va_arg(t_flags *f, va_list ap)
 {
 	f->z.c = ter((f->type == 'c'), va_arg(ap, int),  0);
-	f->z.u = ter(ft_find(f->type, "xXu"), va_arg(ap, unsigned int), 0);
-	f->z.n = ter(ft_find(f->type, "di"), va_arg(ap, int), 0);
-	f->z.s = ter((f->type == 's'), va_arg(ap, char*), "(null)");
-	f->z.p = ter(f->type == 'p'), va_arg(ap, void*), NULL);
+	f->z.u = ter((f->type == 'x' || f->type == 'X' || f->type == 'u'), va_arg(ap, unsigned int), 0);
+	f->z.n = ter((f->type == 'd' || f->type == 'i'), va_arg(ap, int), 0);
+	f->z.s = ter_str((f->type == 's'), va_arg(ap, char*), "(null)");
+	f->z.p = ter_p((f->type == 'p'), va_arg(ap, void*), NULL);
 	if (!f->z.s)
 		f->z.s = "(null)";
 	return ;
 }
 
+*/
+
+void	stock_va_arg(t_flags *f, va_list ap)
+{
+	f->z.c = (f->type == 'c')? va_arg(ap, int) : 0;
+	f->z.u = (f->type == 'x' || f->type == 'X' || f->type == 'u')? va_arg(ap, unsigned int) : 0;
+	f->z.n = (f->type == 'd' || f->type == 'i')? va_arg(ap, int) : 0;
+	f->z.s = (f->type == 's')? va_arg(ap, char*) : "(null)";
+	f->z.p = (f->type == 'p')? va_arg(ap, void*) : NULL;
+	if(!f->z.s)
+		f->z.s = "(null)";
+}
+
+	/*
+void	stock_va_arg(t_flags *f, va_list ap)
+{
+	f->z.c = ter((f->type == 'c'), va_arg(ap, int),  0);
+	f->z.u = ter(ft_find(f->type, "xXu"), va_arg(ap, unsigned int), 0);
+	f->z.n = ter(ft_find(f->type, "di"), va_arg(ap, int), 0);
+	f->z.s = ter_str((f->type == 's'), va_arg(ap, char*), "(null)");
+	f->z.p = ter_p((f->type == 'p'), va_arg(ap, void*), NULL);
+	if (!f->z.s)
+		f->z.s = "(null)";
+	return ;
+}
+*/
 
 int	print_type(va_list ap, struct s_flags *f)
 {
