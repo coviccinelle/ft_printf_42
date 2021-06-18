@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/18 17:16:38 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/18 17:55:29 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,21 @@ int	ft_putnbr(long int n, char y)
 	return (ret);
 }
 
+int	ft_putstr(char *s, int n, char y)
+{
+	int		ret;
+
+	ret = 0;
+	while (s[ret] && (ret < n || n == 0 || n == -1))
+	{
+		if (y == 1)
+			ret += write (1, &s[ret], 1);
+		else
+			ret += 1;
+	}
+	return (ret);
+}
+
 int	ft_hexa(unsigned int n, char y, char x)
 {
 	int		ret;
@@ -156,21 +171,6 @@ int	print_p(void	*p, char	y)
 	return (ret);
 }
 
-int	ft_putstr(char *s, int n, char y)
-{
-	int		ret;
-
-	ret = 0;
-	while (s[ret] && (ret < n || n == 0 || n == -1))
-	{
-		if (y == 1)
-			ret += write (1, &s[ret], 1);
-		else
-			ret += 1;
-	}
-	return (ret);
-}
-
 int	ft_p_flags(struct s_flags *f, char y)
 {
 	if (f->type == 's' && !(f->prec == '.' && f->intp == 0))
@@ -192,7 +192,7 @@ int	ft_p_flags(struct s_flags *f, char y)
 	return (0);
 }
 
-int	ft_largeur1_0(t_flags *f, int size)
+int	ft_largeur_0(t_flags *f, int size)
 {
 	int		ret;
 
@@ -222,7 +222,7 @@ int	ft_largeur(struct s_flags *f, int size, char y)
 		}
 	}
 	if (y == 1 && f->type != 's' && f->type != '%')
-		ret += ft_largeur1_0 (f, size);
+		ret += ft_largeur_0(f, size);
 	if (y == 2)
 	{
 		while (f->i == '-' && f->width > size)
@@ -234,17 +234,28 @@ int	ft_largeur(struct s_flags *f, int size, char y)
 	return (ret);
 }
 
-int	ft_largeur_pointeur(t_flags	*f)
+int	ft_largeur_pointeur(t_flags	*f, int size, int y)
 {
 	int	ret;
 
 	ret = 0;
-	if (f->i != '0' && f->i != '-')
+	if (y == 0)
 	{
-		while (f->width)
+		if (f->i != '0' && f->i != '-')
 		{
-			ret += write (1, " ", 1);
-			(f->width)--;
+			while (f->width)
+			{
+				ret += write (1, " ", 1);
+				(f->width)--;
+			}
+		}
+	}
+	if (y == 1)
+	{
+		while (f->intp > size && f->prec == '.')
+		{
+			ret += write (1, "0", 1);
+			f->intp--;
 		}
 	}
 	return (ret);
@@ -272,36 +283,15 @@ void	stock_va_arg(t_flags *f, va_list ap)
 	return ;
 }
 
-int	neg_case(t_flags *f, int *size, int y)
-{
-	int	ret;
-
-	ret = 0;
-	if (y == 0)
-	{
-		f->width *= -1;
-		f->i = '-';
-	}
-	if (y == 1)
-	{
-		ret += write(1, "-", 1);
-		f->z.n *= -1;
-	}
-	if (y == 2)
-	{
-		ret += write(1, "-", 1);
-		(*size)--;
-		f->z.n *= -1;
-	}
-	return (ret);
-}
-
 void	fct_decoupe(va_list ap, struct s_flags *f, int (*h)[5])
 {
 	(*h)[3] = 0;
 	stock_va_arg(f, ap);
 	if (f->width < 0)
-		(*h)[3] += neg_case(f, &((*h)[0]), 0);
+	{
+		f->width *= -1;
+		f->i = '-';
+	}
 	(*h)[4] = 0;
 	if (f->type == 'p')
 		(*h)[4] = 2;

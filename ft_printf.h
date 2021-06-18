@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 12:47:05 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/11 15:50:17 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/18 17:56:24 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ typedef struct	s_flags
 {
 	char		i;
 	int			width;
-	char		precision;
-	int			raional_num;
+	char		prec;
+	int			intp;
 	char		type;
 	t_type		z;
 }				t_flags;
@@ -42,35 +42,42 @@ typedef struct	s_flags
 
 //    main printf //
 
-int			ft_printf(const char *s, ...);
-int			ft_printf_flags(va_list ap, const char *s, int *n);
-int			print_type(va_list ap, t_flags *f);
-int			ft_p_flags(t_flags *f, char y);
+void	init_flags(t_flags *f);
+int		ft_printf(const char *s, ...);
+int		ft_printf_flags(va_list ap, const char *s, int *n);
+int		ft_p_flags(t_flags *f, char y);
 
 //size = ft_p_flags;
 
 
+// flags //
+int		minus_zero_intp(t_flags *f, const char *s, int *n, int y);
+int	get_width_star(t_flags *f, va_list ap, const char *s, int *n);
+int	get_star(t_flags *f, va_list ap, const char *s, int *n);
+int	get_intp(t_flags *f, va_list ap, const char *s, int *n);
+
+
 //    calculating   //
 int		ft_largeur(t_flags *f, int	size, char y);
-int		ft_largeur_pointeur(t_flags *f, int size);
-void	stock_va_arg(t_flags *f, va_list ap);
+int		ft_largeur_0(t_flags *f, int size, char y);
+int		print_type(va_list ap, t_flags *f);
+void	fct_decoupe(va_list ap, t_flags *f, int (*h)[5]);
 
 // print types //
 
 int		ft_hexa(unsigned int n, char y, char x);
 int		ft_hexa_pointeur(unsigned long long int n, char y);
 int		print_p(t_flags *f, void *p, char y);
-int		ft_putchar(char c, char y);
-int		ft_putnbr_unisgned(unsigned int n, char y);
-int		ft_putnbr(long int n, char y);
-int		ft_putstr(char *s, int n, char y);
+void	stock_va_arg(t_flags *f, va_list ap);
 
 
 
 //    utils   //
-void	init_flags(t_flags *f);
-char	ft_find(char c, char *s);
-
+char	f_find(char c, char *s);
+int		ft_putnbr_unisgned(unsigned int n, char y);
+int		ft_putnbr(long int n, char y);
+int		ft_putstr(char *s, int n, char y);
+int		ft_putchar(char c, char y);
 
 // maybe
 
