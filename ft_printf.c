@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/18 12:45:13 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/18 14:26:56 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,9 +272,29 @@ void	stock_va_arg(t_flags *f, va_list ap)
 	return ;
 }
 
+int	neg_case(t_flags *f, int *size, int y)
+{
+	int	ret;
 
-int	neg_case(t_flags *f, 
-
+	ret = 0;
+	if (y == 0)
+	{
+		f->width *= -1;
+		f->i = '-';
+	}
+	if (y == 1)
+	{
+		ret += write(1, "-", 1);
+		f->z.n *= -1;
+	}
+	if (y == 2)
+	{
+		ret += write(1, "-", 1);
+		(*size)--;
+		f->z.n *= -1;
+	}
+	return (ret);
+}
 
 int	print_type(va_list ap, struct s_flags *f)
 {
@@ -286,10 +306,7 @@ int	print_type(va_list ap, struct s_flags *f)
 
 	stock_va_arg(f, ap);
 	if (f->width < 0)
-	{
-		f->width *= -1;
-		f->i = '-';
-	}
+		ret += neg_case(f, &size, 0);
 	m = (f->type == 'p')? 2 : 0;
 	neg = ((f->type == 'd' || f->type == 'i') && f->z.n < 0)? 1 : 0;
 	size = ft_p_flags(f, 0);
@@ -297,24 +314,41 @@ int	print_type(va_list ap, struct s_flags *f)
 			(f->intp + neg > size + m)))? f->intp + neg : size + m;
 	ret = 0;
 	if (f_find(f->type, "di") && f->z.n < 0 && f->i == '0' && !(f->prec == '.'))
-	{
-		ret += write(1, "-", 1);
-		size--;
-		f->z.n *= -1;
-	}
+		ret += neg_case(f, &size, 1);
 	ret += ft_largeur(f, largeur, 0);
 	if (f->type == 'p')
 		ret += ft_putstr("0x", 0, 1);
 	if (f_find(f->type, "di") && f->z.n < 0 && (f->prec == '.'))
-	{
-		ret += write(1, "-", 1);
-		size--;
-		f->z.n *= -1;
-	}
+		ret += neg_case(f, &size, 2);
 	ret += ft_largeur(f, size, 1);
 	ret += ft_p_flags(f, 1);
 	ret += ft_largeur(f, largeur, 2);
 	return (ret);
+}
+
+void	ft_sub_flags(t_flags *f, int *n, int y)
+{
+	if (y == 0)
+	{
+		f->i = '0';
+		(*n)++;
+	}
+	if (y == 1)
+	{
+		f->i = '-';
+		(*n)++;
+	}
+	if (y == 2)
+	{
+		f->i = '-';
+		f->width *= -1;;
+	}
+	if (y == 3)
+	{
+		f->intp = -1;
+		f->prec = 0;
+	}
+
 }
 
 int	ft_printf_flags(va_list ap, const char *s, int *n)
@@ -324,12 +358,18 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 	init_flags(&f);
 	(*n)++;
 	while (s[*n] == '0')
-	{
+		ft_sub_flags(&f, n, 0);
+	/*{
 		f.i = '0';
 		(*n)++;
-	}
+	}*/
 	while (s[*n] == '-')
 	{
+		ft_sub_flags(&f, n, 1);
+		while (s[*n] == '0')
+			ft_sub_flags(&f, n, 1);
+	}
+	/*{
 		f.i = '-';
 		(*n)++;
 		while (s[*n] == '0')
@@ -337,7 +377,7 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 			f.i = '-';
 			(*n)++;
 		}
-	}
+	}*/
 	while (f_find(s[*n], "0123456789"))
 	{
 		f.width = f.width * 10 + (s[*n] - '0');
@@ -347,10 +387,11 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 	{
 		f.width = va_arg(ap, int);
 		if (f.width < 0)
-		{
+			ft_sub_flags(&f, n, 2);
+	/*	{
 			f.i = '-';
 			f.width *= -1;
-		}
+		}*/
 		(*n)++;
 	}
 	if (s[*n] == '.')
@@ -361,10 +402,11 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 		{
 			f.intp = va_arg(ap, int);
 			if (f.intp < 0)
-			{
+				ft_sub_flags(&f, n, 3);
+	/*		{
 				f.intp = -1;
 				f.prec = 0;
-			}
+			}*/
 			(*n)++;
 		}
 	}
