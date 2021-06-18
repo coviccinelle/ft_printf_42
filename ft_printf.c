@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/17 16:21:09 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/18 12:45:13 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ typedef struct s_flags
 {
 	char	i;
 	int		width;
-	char	precision;
+	char	prec;
 	int		intp;
 	char	type;
 	t_type	z;
@@ -38,13 +38,13 @@ void	init_flags(t_flags *f)
 {
 	f->i = 0;
 	f->width = 0;
-	f->precision = 0;
+	f->prec = 0;
 	f->intp = 0;
 	f->type = 0;
 	return ;
 }
 
-char	ft_find(char	c, char *s)
+char	f_find(char	c, char *s)
 {
 	int		i;
 
@@ -118,7 +118,7 @@ int	ft_hexa(unsigned int n, char y, char x)
 	c = s[n % 16];
 	if (y == 1)
 	{
-		if (x == 'X' && ft_find(c, "abcdef"))
+		if (x == 'X' && f_find(c, "abcdef"))
 			c -= 32;
 		ret += write (1, &c, 1);
 	}
@@ -173,21 +173,21 @@ int	ft_putstr(char *s, int n, char y)
 
 int	ft_p_flags(struct s_flags *f, char y)
 {
-	if (f->type == 's' && !(f->precision == '.' && f->intp == 0))
+	if (f->type == 's' && !(f->prec == '.' && f->intp == 0))
 		return (ft_putstr(f->z.s, f->intp, y));
-	if (ft_find(f->type, "xX") && !(f->precision == '.' && f->intp == 0
+	if (f_find(f->type, "xX") && !(f->prec == '.' && f->intp == 0
 			&& f->z.u == 0))
 		return (ft_hexa(f->z.u, y, f->type));
-	if (ft_find(f->type, "di") && !(f->precision == '.' && f->intp == 0
+	if (f_find(f->type, "di") && !(f->prec == '.' && f->intp == 0
 			&& f->z.n == 0))
 		return (ft_putnbr(f->z.n, y));
-	if (f->type == 'u' && !(f->precision == '.' && f->intp == 0 && f->z.u == 0))
+	if (f->type == 'u' && !(f->prec == '.' && f->intp == 0 && f->z.u == 0))
 		return (ft_putnbr_unsigned(f->z.u, y));
 	if (f->type == 'c')
 		return (ft_putchar(f->z.c, y));
 	if (f->type == '%')
 		return (ft_putchar('%', y));
-	if (f->type == 'p' && !(f->precision == '.' && f->z.p == NULL))
+	if (f->type == 'p' && !(f->prec == '.' && f->z.p == NULL))
 		return (print_p(f->z.p, y));
 	return (0);
 }
@@ -197,7 +197,7 @@ int	ft_largeur1_0(t_flags *f, int size)
 	int		ret;
 
 	ret = 0;
-	while (f->intp > size && f->precision == '.')
+	while (f->intp > size && f->prec == '.')
 	{
 		ret += write (1, "0", 1);
 		f->intp--;
@@ -214,7 +214,7 @@ int	ft_largeur(struct s_flags *f, int size, char y)
 	{
 		while (f->width > size && f->i != '-')
 		{
-			if ((f->i == '0') && ((f->precision == 0 || f->intp < 0 || f->type == '%')))
+			if (f->i == '0' && (f->prec == 0 || f->intp < 0 || f->type == '%'))
 				ret += write (1, "0", 1);
 			else
 				ret += write (1, " ", 1);
@@ -257,7 +257,6 @@ void	stock_va_arg(t_flags *f, va_list ap)
 	f->z.n = 0;
 	f->z.s = "(null)";
 	f->z.p = NULL;
-
 	if (f->type == 'c')
 		f->z.c = va_arg(ap, int);
 	if (f->type == 'x' || f->type == 'X' || f->type == 'u')
@@ -267,11 +266,15 @@ void	stock_va_arg(t_flags *f, va_list ap)
 	if (f->type == 's')
 		f->z.s = va_arg(ap, char *);
 	if (f->type == 'p')
-		f->z.p = va_arg(ap, void*);
+		f->z.p = va_arg(ap, void *);
 	if (!f->z.s)
 		f->z.s = "(null)";
 	return ;
 }
+
+
+int	neg_case(t_flags *f, 
+
 
 int	print_type(va_list ap, struct s_flags *f)
 {
@@ -290,9 +293,10 @@ int	print_type(va_list ap, struct s_flags *f)
 	m = (f->type == 'p')? 2 : 0;
 	neg = ((f->type == 'd' || f->type == 'i') && f->z.n < 0)? 1 : 0;
 	size = ft_p_flags(f, 0);
-	largeur = (f->type != 's' && f->type != '%' && (f->precision == '.' && (f->intp + neg > size + m)))? f->intp + neg : size + m;
+	largeur = (f->type != 's' && f->type != '%' && (f->prec == '.' &&
+			(f->intp + neg > size + m)))? f->intp + neg : size + m;
 	ret = 0;
-	if (ft_find (f->type, "di") && f->z.n < 0 && f->i== '0' && !(f->precision == '.'))
+	if (f_find(f->type, "di") && f->z.n < 0 && f->i == '0' && !(f->prec == '.'))
 	{
 		ret += write(1, "-", 1);
 		size--;
@@ -301,7 +305,7 @@ int	print_type(va_list ap, struct s_flags *f)
 	ret += ft_largeur(f, largeur, 0);
 	if (f->type == 'p')
 		ret += ft_putstr("0x", 0, 1);
-	if (ft_find(f->type, "di") && f->z.n < 0 && (f->precision == '.'))
+	if (f_find(f->type, "di") && f->z.n < 0 && (f->prec == '.'))
 	{
 		ret += write(1, "-", 1);
 		size--;
@@ -334,12 +338,12 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 			(*n)++;
 		}
 	}
-	while (ft_find(s[*n], "0123456789"))
+	while (f_find(s[*n], "0123456789"))
 	{
 		f.width = f.width * 10 + (s[*n] - '0');
 		(*n)++;
 	}
-	if (ft_find(s[*n], "*"))
+	if (f_find(s[*n], "*"))
 	{
 		f.width = va_arg(ap, int);
 		if (f.width < 0)
@@ -351,25 +355,25 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 	}
 	if (s[*n] == '.')
 	{
-		f.precision = '.';
+		f.prec = '.';
 		(*n)++;
-		if (ft_find(s[*n], "*"))
+		if (f_find(s[*n], "*"))
 		{
 			f.intp = va_arg(ap, int);
 			if (f.intp < 0)
 			{
 				f.intp = -1;
-				f.precision = 0;
+				f.prec = 0;
 			}
 			(*n)++;
 		}
 	}
-	while (ft_find(s[*n], "0123456789"))
+	while (f_find(s[*n], "0123456789"))
 	{
 		f.intp = f.intp * 10 + (s[*n] - '0');
 		(*n)++;
 	}
-	if (ft_find(s[*n], "cspdiuxX%"))
+	if (f_find(s[*n], "cspdiuxX%"))
 	{
 		f.type = s[*n];
 		(*n)++;
