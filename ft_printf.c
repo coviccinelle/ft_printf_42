@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/18 14:26:56 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/18 17:16:38 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,37 +296,52 @@ int	neg_case(t_flags *f, int *size, int y)
 	return (ret);
 }
 
-int	print_type(va_list ap, struct s_flags *f)
+void	fct_decoupe(va_list ap, struct s_flags *f, int (*h)[5])
 {
-	int		size;
-	int		largeur;
-	int		neg;
-	int		ret;
-	int		m;
-
+	(*h)[3] = 0;
 	stock_va_arg(f, ap);
 	if (f->width < 0)
-		ret += neg_case(f, &size, 0);
-	m = (f->type == 'p')? 2 : 0;
-	neg = ((f->type == 'd' || f->type == 'i') && f->z.n < 0)? 1 : 0;
-	size = ft_p_flags(f, 0);
-	largeur = (f->type != 's' && f->type != '%' && (f->prec == '.' &&
-			(f->intp + neg > size + m)))? f->intp + neg : size + m;
-	ret = 0;
-	if (f_find(f->type, "di") && f->z.n < 0 && f->i == '0' && !(f->prec == '.'))
-		ret += neg_case(f, &size, 1);
-	ret += ft_largeur(f, largeur, 0);
+		(*h)[3] += neg_case(f, &((*h)[0]), 0);
+	(*h)[4] = 0;
 	if (f->type == 'p')
-		ret += ft_putstr("0x", 0, 1);
-	if (f_find(f->type, "di") && f->z.n < 0 && (f->prec == '.'))
-		ret += neg_case(f, &size, 2);
-	ret += ft_largeur(f, size, 1);
-	ret += ft_p_flags(f, 1);
-	ret += ft_largeur(f, largeur, 2);
-	return (ret);
+		(*h)[4] = 2;
+	(*h)[2] = 0;
+	if (f_find(f->type, "di") && f->z.n < 0)
+		(*h)[2] = 1;
+	(*h)[0] = ft_p_flags(f, 0);
+	(*h)[1] = (*h)[0] + (*h)[4];
+	if (!f_find(f->type, "s%") && f->prec == '.' && \
+			(f->intp + (*h)[2] > (*h)[0] + (*h)[4]))
+		(*h)[1] = f->intp + (*h)[2];
 }
 
-void	ft_sub_flags(t_flags *f, int *n, int y)
+int	print_type(va_list ap, struct s_flags *f)
+{
+	int		h[5];
+
+	fct_decoupe(ap, f, &h);
+	if (f_find(f->type, "di") && f->z.n < 0 && f->i == '0' && \
+			!(f->prec == '.'))
+	{
+		h[3] += write(1, "-", 1);
+		f->z.n *= -1;
+	}
+	h[3] += ft_largeur(f, h[1], 0);
+	if (f->type == 'p')
+		h[3] += ft_putstr("0x", 0, 1);
+	if (f_find(f->type, "di") && f->z.n < 0 && (f->prec == '.'))
+	{
+		h[3] += write(1, "-", 1);
+		h[0]--;
+		f->z.n *= -1;
+	}
+	h[3] += ft_largeur(f, h[0], 1);
+	h[3] += ft_p_flags(f, 1);
+	h[3] += ft_largeur(f, h[1], 2);
+	return (h[3]);
+}
+
+int	minus_zero_intp(t_flags *f, const char *s, int *n, int y)
 {
 	if (y == 0)
 	{
@@ -337,18 +352,59 @@ void	ft_sub_flags(t_flags *f, int *n, int y)
 	{
 		f->i = '-';
 		(*n)++;
-	}
-	if (y == 2)
-	{
-		f->i = '-';
-		f->width *= -1;;
+		while (s[*n] == '0')
+		{
+			f->i = '-';
+			(*n)++;
+		}
 	}
 	if (y == 3)
 	{
-		f->intp = -1;
-		f->prec = 0;
+		f->intp = f->intp * 10 + (s[*n] - '0');
+		(*n)++;
 	}
+	return (0);
+}
 
+int	get_width_star(t_flags *f, va_list ap, const char *s, int *n)
+{
+	f->width = f->width * 10 + (s[*n] - '0');
+	(*n)++;
+	return (0);
+}
+
+int	get_star(t_flags *f, va_list ap, const char *s, int *n)
+{
+	f->width = va_arg(ap, int);
+	if (f->width < 0)
+	{
+		f->i = '-';
+		f->width *= -1;
+	}
+	(*n)++;
+	return (0);
+}
+
+int	get_intp(t_flags *f, va_list ap, const char *s, int *n)
+{
+	f->prec = '.';
+	(*n)++;
+	if (f_find(s[*n], "*"))
+	{
+		f->intp = va_arg(ap, int);
+		if (f->intp < 0)
+		{
+			f->intp = -1;
+			f->prec = 0;
+		}
+		(*n)++;
+		while (f_find(s[*n], "0123456789"))
+		{
+			f->intp = f->intp * 10 + (s[*n] - '0');
+			(*n)++;
+		}
+	}
+	return (0);
 }
 
 int	ft_printf_flags(va_list ap, const char *s, int *n)
@@ -358,63 +414,17 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 	init_flags(&f);
 	(*n)++;
 	while (s[*n] == '0')
-		ft_sub_flags(&f, n, 0);
-	/*{
-		f.i = '0';
-		(*n)++;
-	}*/
+		minus_zero_intp(&f, s, n, 0);
 	while (s[*n] == '-')
-	{
-		ft_sub_flags(&f, n, 1);
-		while (s[*n] == '0')
-			ft_sub_flags(&f, n, 1);
-	}
-	/*{
-		f.i = '-';
-		(*n)++;
-		while (s[*n] == '0')
-		{
-			f.i = '-';
-			(*n)++;
-		}
-	}*/
+		minus_zero_intp(&f, s, n, 1);
 	while (f_find(s[*n], "0123456789"))
-	{
-		f.width = f.width * 10 + (s[*n] - '0');
-		(*n)++;
-	}
+		get_width_star(&f, ap, s, n);
 	if (f_find(s[*n], "*"))
-	{
-		f.width = va_arg(ap, int);
-		if (f.width < 0)
-			ft_sub_flags(&f, n, 2);
-	/*	{
-			f.i = '-';
-			f.width *= -1;
-		}*/
-		(*n)++;
-	}
+		get_star(&f, ap, s, n);
 	if (s[*n] == '.')
-	{
-		f.prec = '.';
-		(*n)++;
-		if (f_find(s[*n], "*"))
-		{
-			f.intp = va_arg(ap, int);
-			if (f.intp < 0)
-				ft_sub_flags(&f, n, 3);
-	/*		{
-				f.intp = -1;
-				f.prec = 0;
-			}*/
-			(*n)++;
-		}
-	}
+		get_intp(&f, ap, s, n);
 	while (f_find(s[*n], "0123456789"))
-	{
-		f.intp = f.intp * 10 + (s[*n] - '0');
-		(*n)++;
-	}
+		minus_zero_intp(&f, s, n, 3);
 	if (f_find(s[*n], "cspdiuxX%"))
 	{
 		f.type = s[*n];
