@@ -17,3 +17,6 @@ h[3] = ret;
   
 h[4] = m;
 	int		m;
+
+
+size = ft_p_flags
