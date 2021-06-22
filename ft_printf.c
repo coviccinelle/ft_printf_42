@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/22 11:52:57 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/22 12:31:54 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -419,7 +419,7 @@ int	ft_printf_flags(va_list ap, const char *s, int *n)
 	if (s[*n] == '.')
 		get_intp(&f, ap, s, n);
 	while (f_find(s[*n], "0123456789"))
-		minus_zero_intp(&f, s, n, 3);
+			minus_zero_intp(&f, s, n, 3);
 	if (f_find(s[*n], "cspdiuxX%"))
 	{
 		f.type = s[*n];

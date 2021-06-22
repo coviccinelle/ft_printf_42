@@ -6,7 +6,7 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/22 11:11:56 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/22 11:31:33 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/22 12:35:07 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,11 +69,6 @@ int	get_intp(t_flags *f, va_list ap, const char *s, int *n)
 			f->prec = 0;
 		}
 		(*n)++;
-		while (f_find(s[*n], "0123456789"))
-		{
-			f->intp = f->intp * 10 + (s[*n] - '0');
-			(*n)++;
-		}
 	}
 	return (0);
 }
