@@ -6,12 +6,12 @@
 /*   By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 18:18:59 by thi-phng          #+#    #+#             */
-/*   Updated: 2021/06/18 17:55:29 by thi-phng         ###   ########.fr       */
+/*   Updated: 2021/06/22 11:52:57 by thi-phng         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "ft_printf.h"
-#include <stdarg.h>
+#include "ft_printf.h"
+/*#include <stdarg.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -33,7 +33,7 @@ typedef struct s_flags
 	char	type;
 	t_type	z;
 }				t_flags;
-
+*/
 void	init_flags(t_flags *f)
 {
 	f->i = 0;
@@ -43,7 +43,7 @@ void	init_flags(t_flags *f)
 	f->type = 0;
 	return ;
 }
-
+/*
 char	f_find(char	c, char *s)
 {
 	int		i;
@@ -57,7 +57,9 @@ char	f_find(char	c, char *s)
 	}
 	return (0);
 }
+*/
 
+/*
 int	ft_putchar(char	c, char y)
 {
 	if (y == 1)
@@ -119,7 +121,8 @@ int	ft_putstr(char *s, int n, char y)
 	}
 	return (ret);
 }
-
+*/
+/*
 int	ft_hexa(unsigned int n, char y, char x)
 {
 	int		ret;
@@ -170,7 +173,7 @@ int	print_p(void	*p, char	y)
 	ret += ft_hexa_pointeur (c, y);
 	return (ret);
 }
-
+*/
 int	ft_p_flags(struct s_flags *f, char y)
 {
 	if (f->type == 's' && !(f->prec == '.' && f->intp == 0))
@@ -192,6 +195,7 @@ int	ft_p_flags(struct s_flags *f, char y)
 	return (0);
 }
 
+/*
 int	ft_largeur_0(t_flags *f, int size)
 {
 	int		ret;
@@ -396,6 +400,7 @@ int	get_intp(t_flags *f, va_list ap, const char *s, int *n)
 	}
 	return (0);
 }
+*/
 
 int	ft_printf_flags(va_list ap, const char *s, int *n)
 {

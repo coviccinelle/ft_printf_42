@@ -6,7 +6,7 @@
 #    By: thi-phng <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/03/23 10:17:28 by thi-phng          #+#    #+#              #
-#    Updated: 2021/05/27 14:19:12 by thi-phng         ###   ########.fr        #
+#    Updated: 2021/06/22 11:27:01 by thi-phng         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,10 @@ RM			= rm -rf
 CC			= gcc
 
 SRCDIR		= ft_printf.c \
+			  ft_calculating.c \
+			  ft_flags.c \
+			  ft_print_types.c \
+			  ft_tools.c \
 
 
 OBJS		= $(SRCDIR:.c=.o)
